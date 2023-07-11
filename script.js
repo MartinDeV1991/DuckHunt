@@ -10,6 +10,18 @@ const collisionCtx = collisionCanvas.getContext('2d')
 collisionCanvas.width = window.innerWidth
 collisionCanvas.height = window.innerHeight
 
+const img = new Image();
+img.src = './sniper scope.png'
+let mouseX = 0
+let mouseY = 0
+const cursorWidth = 100
+const cursorHeight = 100
+
+canvas.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX - canvas.offsetLeft;
+    mouseY = e.clientY - canvas.offsetTop;
+});
+
 
 let timeToNextRaven = 0
 let ravenInterval = 500
@@ -55,7 +67,7 @@ class Raven {
             this.timeSinceFlap = 0
             if (this.hasTrail) {
                 for (let i = 0; i < 5; i++)
-                particles.push(new Particle(this.x, this.y, this.width, this.color))
+                    particles.push(new Particle(this.x, this.y, this.width, this.color))
             }
         }
         if (this.x < 0 - this.width) gameOver = true
@@ -71,9 +83,9 @@ let particles = []
 class Particle {
     constructor(x, y, size, color) {
         this.size = size
-        this.x = x + this.size/2 + Math.random() * 50 - 25
-        this.y = y + this.size/3 + Math.random() * 50 - 25       
-        this.radius = Math.random() * this.size/10
+        this.x = x + this.size / 2 + Math.random() * 50 - 25
+        this.y = y + this.size / 3 + Math.random() * 50 - 25
+        this.radius = Math.random() * this.size / 10
         this.MaxRadius = Math.random() * 20 + 35
         this.speedX = Math.random() * 1 + 0.5
         this.color = color
@@ -85,7 +97,7 @@ class Particle {
     }
     draw() {
         ctx.save()
-        ctx.globalAlpha = 1 - this.radius/this.MaxRadius
+        ctx.globalAlpha = 1 - this.radius / this.MaxRadius
         ctx.beginPath()
         ctx.fillStyle = this.color
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2)
@@ -107,6 +119,7 @@ class Explosion {
         this.frame = 0
         this.sound = new Audio()
         this.sound.src = 'boom.wav'
+        this.sound.volume = 0.01;
         this.timeSinceLastFrame = 0
         this.frameInterval = 200
         this.markedForDeletion = false
@@ -121,27 +134,26 @@ class Explosion {
         }
     }
     draw() {
-        ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y - this.size/4, this.size, this.size)
+        ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y - this.size / 4, this.size, this.size)
     }
 }
 
 function drawScore() {
     ctx.fillStyle = 'black'
-    ctx.fillText( 'Score: ' + score, 50, 75)
+    ctx.fillText('Score: ' + score, 50, 75)
     ctx.fillStyle = 'white'
-    ctx.fillText( 'Score: ' + score, 55, 80)
+    ctx.fillText('Score: ' + score, 55, 80)
 }
 
 function drawGameOver() {
     ctx.fillStyle = 'black'
-    ctx.fillText('GAME OVER, your score is ' + score, canvas.width/2, canvas.height/2)
+    ctx.fillText('GAME OVER, your score is ' + score, canvas.width / 2, canvas.height / 2)
     ctx.fillStyle = 'white'
-    ctx.fillText('GAME OVER, your score is ' + score, canvas.width/2 + 5, canvas.height/2 + 5)
+    ctx.fillText('GAME OVER, your score is ' + score, canvas.width / 2 + 5, canvas.height / 2 + 5)
 }
 
-window.addEventListener('click', function(e) {
+window.addEventListener('click', function (e) {
     const detectPixelColor = collisionCtx.getImageData(e.x, e.y, 1, 1)
-    console.log(detectPixelColor)
     const pc = detectPixelColor.data
     ravens.forEach(object => {
         if (object.randomColors[0] === pc[0] && object.randomColors[1] === pc[1] && object.randomColors[2] === pc[2]) {
@@ -155,6 +167,7 @@ window.addEventListener('click', function(e) {
 
 function animate(timestamp) {
     ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.drawImage(img, mouseX - cursorWidth / 2, mouseY - cursorHeight / 2, cursorWidth, cursorHeight)
     collisionCtx.clearRect(0, 0, canvas.width, canvas.height)
     let deltaTime = timestamp - lastTime
     lastTime = timestamp
@@ -162,7 +175,7 @@ function animate(timestamp) {
     if (timeToNextRaven > ravenInterval) {
         ravens.push(new Raven())
         timeToNextRaven = 0
-        ravens.sort(function(a,b) {
+        ravens.sort(function (a, b) {
             return a.width - b.width
         })
     }
@@ -174,6 +187,9 @@ function animate(timestamp) {
     particles = particles.filter(object => !object.markedForDeletion)
 
     if (!gameOver) requestAnimationFrame(animate)
-    else drawGameOver()
+    else {
+        drawGameOver()
+        canvas.style.cursor = 'auto'
+    }
 }
 animate(0)
