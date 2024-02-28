@@ -4,7 +4,7 @@ const collisionCanvas = document.getElementById('collisionCanvas')
 const collisionCtx = collisionCanvas.getContext('2d')
 
 let score = 0
-ctx.font = '50px impact'
+fontSize = 50;
 
 canvas.width = 1600;
 canvas.height = 800;
@@ -37,6 +37,7 @@ function setCanvasSize() {
     });
     cursorWidth = baseCursorWidth * ratio
     cursorHeight = baseCursorHeight * ratio;
+    ctx.font = fontSize * ratio + 'px impact';
 }
 
 window.addEventListener('resize', setCanvasSize);
