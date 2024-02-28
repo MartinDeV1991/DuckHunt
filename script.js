@@ -8,7 +8,8 @@ ctx.font = '50px impact'
 
 canvas.width = 1600;
 canvas.height = 800;
-const baseHeight = 800;
+const baseHeight = 1500;
+const baseWidth = 1600;
 
 const img = new Image();
 img.src = './sniper scope.png'
@@ -30,7 +31,7 @@ function setCanvasSize() {
     collisionCanvas.height = window.innerHeight;
     width = canvas.width;
     height = canvas.height;
-    ratio = height / baseHeight;
+    ratio = width / baseWidth;
     ravens.forEach(raven => {
         raven.resize();
     });
@@ -42,8 +43,8 @@ window.addEventListener('resize', setCanvasSize);
 
 let mouseX = 0
 let mouseY = 0
-const baseCursorWidth = 100
-const baseCursorHeight = 100
+const baseCursorWidth = 200
+const baseCursorHeight = 200
 
 let cursorWidth = baseCursorWidth
 let cursorHeight = baseCursorHeight;
@@ -64,8 +65,10 @@ class Raven {
         this.height = this.spriteHeight * this.sizeModifier
         this.x = canvas.width
         this.y = Math.random() * (canvas.height - this.height)
-        this.directionX = Math.random() * 5 + 3
-        this.directionY = Math.random() * 5 - 2.5
+        this.xSpeedModfifier = Math.random() * 5 + 3;
+        this.ySpeedModfifier = Math.random() * 5 - 2.5;
+        this.directionX = this.xSpeedModfifier;
+        this.directionY = this.ySpeedModfifier;
         this.markedForDeletion = false
         this.image = new Image()
         this.image.src = 'raven.png'
@@ -76,6 +79,7 @@ class Raven {
         this.randomColors = [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)]
         this.color = 'rgb(' + this.randomColors[0] + ',' + this.randomColors[1] + ',' + this.randomColors[2] + ')'
         this.hasTrail = Math.random() > 0.5
+        this.resize();
     }
 
     update(deltaTime) {
@@ -106,19 +110,22 @@ class Raven {
     resize() {
         this.width = this.spriteWidth * this.sizeModifier * ratio;
         this.height = this.spriteHeight * this.sizeModifier * ratio;
+        this.directionX = this.xSpeedModfifier * ratio;
+        this.directionY = this.ySpeedModfifier * ratio;
     }
 }
 
-let particles = []
+let particles = [];
 class Particle {
     constructor(x, y, size, color) {
-        this.size = size
-        this.x = x + this.size / 2 + Math.random() * 50 - 25
-        this.y = y + this.size / 3 + Math.random() * 50 - 25
-        this.radius = Math.random() * this.size / 10
-        this.MaxRadius = Math.random() * 20 + 35
-        this.speedX = Math.random() * 1 + 0.5
-        this.color = color
+        this.size = size;
+        this.x = x + this.size / 2 + Math.random() * 50 - 25;
+        this.y = y + this.size / 3 + Math.random() * 50 - 25;
+        this.radius = Math.random() * this.size / 10;
+        this.MaxRadius = Math.random() * 20 + 35;
+        this.speedModifier = Math.random() * 1 + 0.5;
+        this.speedX = this.speedModifier;
+        this.color = color;
     }
     update() {
         this.x += this.speedX
