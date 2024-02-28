@@ -1,33 +1,59 @@
 const canvas = document.getElementById('canvas1')
 const ctx = canvas.getContext('2d')
-canvas.width = window.innerWidth
-canvas.height = window.innerHeight
+const collisionCanvas = document.getElementById('collisionCanvas')
+const collisionCtx = collisionCanvas.getContext('2d')
+
 let score = 0
 ctx.font = '50px impact'
 
-const collisionCanvas = document.getElementById('collisionCanvas')
-const collisionCtx = collisionCanvas.getContext('2d')
-collisionCanvas.width = window.innerWidth
-collisionCanvas.height = window.innerHeight
+canvas.width = 1600;
+canvas.height = 800;
+const baseHeight = 800;
 
 const img = new Image();
 img.src = './sniper scope.png'
-let mouseX = 0
-let mouseY = 0
-const cursorWidth = 100
-const cursorHeight = 100
 
-canvas.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX - canvas.offsetLeft;
-    mouseY = e.clientY - canvas.offsetTop;
-});
-
+let width;
+let height;
+let ratio;
 
 let timeToNextRaven = 0
 let ravenInterval = 500
 let lastTime = 0
 let ravens = [];
 let gameOver = false
+
+function setCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    collisionCanvas.width = window.innerWidth;
+    collisionCanvas.height = window.innerHeight;
+    width = canvas.width;
+    height = canvas.height;
+    ratio = height / baseHeight;
+    ravens.forEach(raven => {
+        raven.resize();
+    });
+    cursorWidth = baseCursorWidth * ratio
+    cursorHeight = baseCursorHeight * ratio;
+}
+
+window.addEventListener('resize', setCanvasSize);
+
+let mouseX = 0
+let mouseY = 0
+const baseCursorWidth = 100
+const baseCursorHeight = 100
+
+let cursorWidth = baseCursorWidth
+let cursorHeight = baseCursorHeight;
+
+canvas.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX - canvas.offsetLeft;
+    mouseY = e.clientY - canvas.offsetTop;
+});
+
+setCanvasSize();
 
 class Raven {
     constructor() {
@@ -76,6 +102,10 @@ class Raven {
         collisionCtx.fillStyle = this.color
         collisionCtx.fillRect(this.x, this.y, this.width, this.height)
         ctx.drawImage(this.image, this.frame * this.spriteWidth, 0, this.spriteWidth, this.spriteHeight, this.x, this.y, this.width, this.height)
+    }
+    resize() {
+        this.width = this.spriteWidth * this.sizeModifier * ratio;
+        this.height = this.spriteHeight * this.sizeModifier * ratio;
     }
 }
 
@@ -173,7 +203,7 @@ function animate(timestamp) {
     lastTime = timestamp
     timeToNextRaven += deltaTime
     if (timeToNextRaven > ravenInterval) {
-        ravens.push(new Raven())
+        ravens.push(new Raven());
         timeToNextRaven = 0
         ravens.sort(function (a, b) {
             return a.width - b.width
